@@ -41,9 +41,13 @@ INSTALLED_APPS = [
     #Producst api apps
     'products',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,6 +58,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'products_api.urls'
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = []
 
 TEMPLATES = [
     {
