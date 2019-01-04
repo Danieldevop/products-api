@@ -1,24 +1,23 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
 from .models import Product
 from .serializers import ProductSerializer
+from django.http import Http404
 
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 
 
 import pdb
 
-@api_view(['GET', 'POST'])
-def products_view(request, format=None):
+class products_view(APIView):
 
-	if request.method == 'GET':
+	def get(self, request, format=None):
 		product_query = Product.objects.all()
 		response = ProductSerializer(product_query, many=True)
 		return Response(response.data)
 
-	if request.method == 'POST':
+	def post(self, request, format=None):
 		product_serializer = ProductSerializer(data=request.data)
 
 		if product_serializer.is_valid():
@@ -27,20 +26,23 @@ def products_view(request, format=None):
 		
 		return Response(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def detail_product_view(request, pk, format=None):
+class detail_product_view(APIView):
 	#pdb.set_trace()
-	try:
-		detailed_product_query = Product.objects.get(pk=pk)
-	except Product.DoesNotExist:
-		return Response(status=status.HTTP_400_NOT_FOUND)
 
-	if request.method == 'GET':
-		response = ProductSerializer(detailed_product_query)
+	def get_product(self, pk):
+		try:
+			return Product.objects.get(pk=pk)
+		except Product.DoesNotExist:
+			raise Http404
+
+	def get(self, request, pk, format=None):
+		product = self.get_product(pk)
+		response = ProductSerializer(product)
 		return Response(response.data)
 
-	if request.method == 'PUT':
-		serializer = ProductSerializer(detailed_product_query, data=request.data)
+	def put(self, request, pk, format=None):
+		product = self.get_product(pk)
+		serializer = ProductSerializer(product, data=request.data)
 
 		if serializer.is_valid():
 			serializer.save()
@@ -48,9 +50,13 @@ def detail_product_view(request, pk, format=None):
 
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-	if request.method == 'DELETE':
-		detailed_product_query.delete()
-		return Response(status=status.HTTP_204_NO_CONTENT)
+	def delete(self, request, pk, format=None):
+		product = self.get_product(pk)
+		product.delete()
+		response = {
+			'Message': 'Deleted',
+		}
+		return Response(response)
 
 
 		
