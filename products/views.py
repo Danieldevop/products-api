@@ -1,46 +1,12 @@
-from django.shortcuts import render
 from .models import Product
 from .serializers import ProductSerializer
-from django.http import Http404
-
-from rest_framework import status
-from rest_framework import mixins
 from rest_framework import generics
 
-
-import pdb
-
-class products_view(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
-
+class products_view(generics.ListCreateAPIView):
 	queryset = Product.objects.all()
 	serializer_class = ProductSerializer
 
-	def get(self, request, *args, **kwargs):
-		return self.list(request, *args, **kwargs)
 
-	def post(self, request, *args, **kwargs):
-		return self.create(request, *args, **kwargs)
-
-
-class detail_product_view(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-
+class detail_product_view(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Product.objects.all()
 	serializer_class = ProductSerializer
-
-	def get(self, request, *args, **kwargs):
-		return self.retrieve(request, *args, **kwargs)
-
-	def put(self, request, *args, **kwargs):
-		return self.update(request, *args, **kwargs)
-		
-	def delete(self, request, *args, **kwargs):
-		return self.destroy(request, *args, **kwargs)
-		
-
-
-		
-
-
-
-
-	
